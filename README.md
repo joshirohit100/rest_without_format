@@ -10,6 +10,6 @@ Related Issues -
 2. https://www.drupal.org/node/2839622
 
 
-Todo - 
+#Todo - 
 
-. Make default request format configurable.
+(.) Make default request format configurable.
