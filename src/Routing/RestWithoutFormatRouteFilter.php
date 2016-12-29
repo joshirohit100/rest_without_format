@@ -32,8 +32,7 @@ class RestWithoutFormatRouteFilter extends RequestFormatRouteFilter {
       $endpoints[] = $rest_plugin['uri_paths']['canonical'];
     }
 
-    // If we don't have any rest resource in custom module, use original
-    // router filter.
+    // If we don't have any rest resource , use original router filter.
     if (empty($endpoints)) {
       return parent::filter($collection, $request);
     }
@@ -47,7 +46,7 @@ class RestWithoutFormatRouteFilter extends RequestFormatRouteFilter {
       // Get route path.
       $route_path = $route->getPath();
 
-      // If this route is of custom type.
+      // If this route is of rest type.
       if (in_array(substr($route_path, 1), $endpoints)) {
         // Get the route format.
         $route_format = $route->getRequirement('_format');
