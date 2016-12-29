@@ -11,5 +11,4 @@ Related Issues -
 
 
 Todo - 
-
-1. Make default request format configurable.
+. Make default request format configurable.
