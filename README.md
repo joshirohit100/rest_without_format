@@ -8,3 +8,8 @@ Related Issues -
 
 1. https://www.drupal.org/node/2839658
 2. https://www.drupal.org/node/2839622
+
+
+Todo - 
+
+1. Make default request format configurable.
