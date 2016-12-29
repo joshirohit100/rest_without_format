@@ -1,4 +1,4 @@
-# rest_without_format
+# Rest Without Format
 
 Allows to access rest endpoints without specifying the '_format' key.
 If '_format' key is not available, then uses the 'xml' as default
