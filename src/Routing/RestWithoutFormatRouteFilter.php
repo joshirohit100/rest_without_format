@@ -5,12 +5,50 @@ namespace Drupal\rest_without_format\Routing;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
-use Drupal\Core\Routing\RequestFormatRouteFilter;
+use Drupal\Core\Routing\RouteFilterInterface;
+use Drupal\rest\Plugin\Type\ResourcePluginManager;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
  * Overrides the functionality of RequestFormatRouteFilter.
  */
-class RestWithoutFormatRouteFilter extends RequestFormatRouteFilter {
+class RestWithoutFormatRouteFilter implements RouteFilterInterface {
+
+  /**
+   * The route filter.
+   *
+   * @var \Drupal\Core\Routing\RouteFilterInterface
+   */
+  protected $requestFormatRouteFilter;
+
+  /**
+   * Rest resource plugin manager.
+   *
+   * @var \Drupal\rest\Plugin\Type\ResourcePluginManager
+   */
+  protected $resourcePluginManager;
+
+  /**
+   * The module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
+   * RestWithoutFormatRouteFilter constructor.
+   * @param \Drupal\Core\Routing\RouteFilterInterface $request_format_route_filter
+   *   The route filter.
+   * @param \Drupal\rest\Plugin\Type\ResourcePluginManager $resource_plugin_manager
+   *   The rest plugin manager.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler.
+   */
+  public function __construct(RouteFilterInterface $request_format_route_filter, ResourcePluginManager $resource_plugin_manager, ModuleHandlerInterface $module_handler) {
+    $this->requestFormatRouteFilter = $request_format_route_filter;
+    $this->resourcePluginManager = $resource_plugin_manager;
+    $this->moduleHandler = $module_handler;
+  }
 
   /**
    * {@inheritdoc}
@@ -23,21 +61,25 @@ class RestWithoutFormatRouteFilter extends RequestFormatRouteFilter {
    * {@inheritdoc}
    */
   public function filter(RouteCollection $collection, Request $request) {
-    /* @var \Drupal\rest\Plugin\Type\ResourcePluginManager $rest_plugin_manager*/
-    $rest_plugin_manager = \Drupal::service('plugin.manager.rest');
-    $rest_plugins = $rest_plugin_manager->getDefinitions();
+    // Get all rest plugins.
+    $rest_plugins = $this->resourcePluginManager->getDefinitions();
 
     $endpoints = [];
+
+    // Prepare list of all rest plugin's canonical.
     foreach ($rest_plugins as $rest_plugin) {
       $endpoints[] = $rest_plugin['uri_paths']['canonical'];
     }
 
-    // If we don't have any rest resource , use original router filter.
+    // If no rest resource , use original router filter.
     if (empty($endpoints)) {
-      return parent::filter($collection, $request);
+      return $this->requestFormatRouteFilter->filter($collection, $request);
     }
 
     $format = $request->getRequestFormat('html');
+
+    // Allows module to alter route collection if required.
+    $this->moduleHandler->alter('rest_without_format', $collection, $request, $endpoints);
 
     $rest_routes = [];
 
@@ -67,8 +109,8 @@ class RestWithoutFormatRouteFilter extends RequestFormatRouteFilter {
       return $collection;
     }
 
-    // If nothing found, process parent for default behavior.
-    return parent::filter($collection, $request);
+    // If nothing found, use original route filter behavior.
+    return $this->requestFormatRouteFilter->filter($collection, $request);
   }
 
 }
