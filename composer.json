@@ -1,0 +1,15 @@
+{
+  "name": "drupal/rest_without_format",
+  "type": "drupal-module",
+  "description": "Allows rest resource endpoint to access without _format key",
+  "homepage": "https://github.com/joshirohit100/rest_without_format",
+  "authors": [
+        {
+            "name": "Rohit Joshi",
+            "email": "joshi.rohit100@gmail.com",
+            "role": "Developer"
+        }
+  ],
+  "license": "GPL-2.0+",
+  "minimum-stability": "dev"
+}
